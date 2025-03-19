@@ -10,7 +10,7 @@
  */
 
 import * as vscode from "vscode";
-import { IZoweJobTreeNode, IZoweTreeNode, ZoweScheme, imperative, Gui } from "@zowe/zowe-explorer-api";
+import { IZoweJobTreeNode, IZoweTreeNode, ZoweScheme, imperative, Gui, ZoweVsCodeExtension } from "@zowe/zowe-explorer-api";
 import { JobTree } from "./JobTree";
 import { JobActions } from "./JobActions";
 import { ZoweJobNode } from "./ZoweJobNode";
@@ -112,6 +112,30 @@ export class JobInit {
         context.subscriptions.push(
             vscode.commands.registerCommand("zowe.jobs.setJobSpool", async (session, jobId) => JobActions.focusOnJob(jobsProvider, session, jobId))
         );
+
+        function promptUserForProfile(profileNames: string[]): Thenable<string> {
+            if (profileNames.length > 0) {
+                const quickPickOptions: vscode.QuickPickOptions = {
+                    placeHolder: "Select a profile to access the logs",
+                    ignoreFocusOut: true,
+                    canPickMany: false,
+                };
+                return Gui.showQuickPick(profileNames, quickPickOptions);
+            } else {
+                return null;
+            }
+        }
+        context.subscriptions.push(
+            vscode.commands.registerCommand("zowe.test.setJobSpoolOnArbitraryProfile", async () => {
+                const zoweExplorerApi = ZoweVsCodeExtension.getZoweExplorerApi();
+                const profileNames = (await zoweExplorerApi.getExplorerExtenderApi().getProfilesCache().fetchAllProfiles()).map(
+                    (value) => value.name
+                );
+                const chosenProfileName = await promptUserForProfile(profileNames);
+                vscode.commands.executeCommand("zowe.jobs.setJobSpool", chosenProfileName, "LALA_JOBID");
+            })
+        );
+
         context.subscriptions.push(
             vscode.commands.registerCommand("zowe.jobs.search", async (node): Promise<void> => jobsProvider.filterPrompt(node))
         );

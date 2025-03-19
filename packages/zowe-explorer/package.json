@@ -504,6 +504,11 @@
         "category": "Zowe Explorer"
       },
       {
+        "command": "zowe.test.setJobSpoolOnArbitraryProfile",
+        "title": "Set Job Spool on Arbitrary Profile (TEST)",
+        "category": "Zowe Explorer"
+      },
+      {
         "command": "zowe.jobs.deleteJob",
         "title": "%deleteJob%",
         "category": "Zowe Explorer",
